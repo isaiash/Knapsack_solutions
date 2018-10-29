@@ -56,7 +56,7 @@ void printInst(inst instance)
 
 void printSoln(soln solution){
 	//printf("n: %d, cost: %d, config: %lld\n", solution.num_items, solution.cost, solution.config);
-	printf("%lld\n", solution.config);
+	printf("%lld ", solution.config);
 	//std::cout << "sol: " << toBinaryString(solution.config) << std::endl;
 }
 

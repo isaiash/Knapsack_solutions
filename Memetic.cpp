@@ -68,7 +68,6 @@ int GetInstances(std::vector<inst> &instances, const char* filename, bool verbos
     //int basura;
     if (infile){
         while (std::getline(infile, line)){
-            //std::cout<<line<<std::endl;
             inst newInst;
             std::istringstream iss(line);
             //iss >> basura;

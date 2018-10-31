@@ -191,7 +191,7 @@ int main(int argc, const char** argv){
     std::vector<soln> solutions;
     
     bool verbose;
-    verbose = false;
+    verbose = true;
     
     GetInstances(instances, argv[1], verbose);
     

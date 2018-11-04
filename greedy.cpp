@@ -15,15 +15,13 @@
 
 typedef std::vector<std::pair<int, int> > ItemVector;
 
-struct inst
-{
+struct inst{
     ItemVector items; //weight, cost
     int id;
     int max_weight;
     int num_items;
 };
-struct soln
-{
+struct soln{
     uint64_t config;
     int id;
     int num_items;
@@ -35,14 +33,12 @@ std::vector<int> bbTopConfig;
 
 //helpers
 template<typename T>
-static std::string toBinaryString(const T& x)
-{
+static std::string toBinaryString(const T& x){
     std::stringstream ss;
     ss << std::bitset<sizeof(T) * 64>(x);
     return ss.str();
 }
-void printInst(inst instance)
-{
+void printInst(inst instance){
     printf("Id: %d, Max Weight: %d, Num Items: %d\n", instance.id, instance.max_weight, instance.num_items);
     for (int i = 0; i < instance.num_items; i++)
     {
@@ -51,49 +47,35 @@ void printInst(inst instance)
     printf("\n");
 }
 
-void printSoln(soln solution)
-{
+void printSoln(soln solution){
     printf("Id: %d, n: %d, cost: %d, config: %lld\n", solution.id, solution.num_items, solution.cost, solution.config);
     //std::cout << "sol: " << toBinaryString(solution.config) << std::endl;
 }
 
-int GetInstances(std::vector<inst> &instances, const char* filename, bool verbose)
-{
+int GetInstances(std::vector<inst> &instances, const char* filename, bool verbose){
     std::string line;
     std::ifstream infile(filename);
-    
-    if (infile)
-    {
-        while (std::getline(infile, line))
-        {
+    if (infile){
+        while (std::getline(infile, line)){
             inst newInst;
             std::istringstream iss(line);
-            
             iss >> newInst.id;
             iss >> newInst.num_items;
             iss >> newInst.max_weight;
             newInst.items.resize(newInst.num_items);
-            
-            for (int i = 0; i <= newInst.num_items; i++)
-            {
+            for (int i = 0; i <= newInst.num_items; i++){
                 iss >> newInst.items[i].first;
             }
-            
-            for (int i = 0; i <= newInst.num_items; i++)
-            {
+            for (int i = 0; i <= newInst.num_items; i++){
                 iss >> newInst.items[i].second;
             }
-            
             instances.push_back(newInst);
-            
-            if (verbose)
-            {
+            if (verbose){
                 printf("Pushed New Instance:\n");
                 printInst(newInst);
             }
         }
     }
-    
     return 0;
 }
 
@@ -111,8 +93,7 @@ int DropCostBits(std::vector<inst> &instances, int numBits, bool verbose){
     return 0;
 }
 
-int RoundCosts(std::vector<inst> &instances, int binSize, bool verbose)
-{
+int RoundCosts(std::vector<inst> &instances, int binSize, bool verbose){
     if (binSize == 1) return 0;
     for (int i = 0; i < instances.size(); i++)
     {
@@ -137,8 +118,7 @@ int Greeeeeedy(std::vector<inst> instances, std::vector<soln> &solutions, bool v
     start = std::clock();
     
     //process
-    while (!instances.empty())
-    {
+    while (!instances.empty()){
         inst curInst = instances.back();
         instances.pop_back();
         
@@ -146,13 +126,11 @@ int Greeeeeedy(std::vector<inst> instances, std::vector<soln> &solutions, bool v
         int solnCost = 0;
         std::bitset<40> solnConfig;
         
-        for (int j = 0; j < curInst.num_items; j++)
-        {
+        for (int j = 0; j < curInst.num_items; j++){
             int topCWR = 0;
             int topCWRindex = -1;
             
-            for (int i = 0; i < curInst.num_items; i++)//find highest CWR
-            {
+            for (int i = 0; i < curInst.num_items; i++){//find highest CWR
                 int curCWR = curInst.items[i].second / curInst.items[i].first;
                 if (curCWR > topCWR && solnWeight + curInst.items[i].first <= curInst.max_weight && !solnConfig.test(i))
                 {
@@ -160,8 +138,7 @@ int Greeeeeedy(std::vector<inst> instances, std::vector<soln> &solutions, bool v
                     topCWRindex = i;
                 }
             }
-            if (topCWRindex != -1)//add it to the solution
-            {
+            if (topCWRindex != -1){//add it to the solution
                 solnWeight += curInst.items[topCWRindex].first;
                 solnCost += curInst.items[topCWRindex].second;
                 solnConfig.set(topCWRindex);

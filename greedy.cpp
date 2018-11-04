@@ -169,7 +169,7 @@ int main(int argc, const char** argv){
     
     bool verbose;
     verbose = true;
-    
+
     GetInstances(instances, argv[1], verbose);
     
     Greeeeeedy(instances, solutions, verbose);

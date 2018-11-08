@@ -18,12 +18,14 @@
 #define initial_population_size 20
 #define max_num_iter 1000
 #define prob_mutate 0.01
-#define num_max_selection 5
+#define num_max_selection 5 //Se elige los num_max_selection individuos para escoger siguiente padre
 #define prob_uniform_CrossOver 0.5
 #define item_en_mochila 500 ///<------cambiar por cada tipo de instancias
 #define num_de_corridas 10
+#define prob_bernoulli 0.3 //parametro p en distribucion bernoulli para crear individuos iniciales
 
-typedef std::vector<std::pair<int, int> > ItemVector;
+typedef std::vector< std::pair<int, int> > ItemVector;
+int best_fitness = -1; //para ver si va cambiando el mejor fitness e ir grabandolo
 
 template<typename T>
 static std::string toBinaryString(const T& x){
@@ -34,23 +36,25 @@ static std::string toBinaryString(const T& x){
 
 struct inst{
     ItemVector items; //peso, beneficio
+    int id;
     int max_weight;
     int num_items;
 };
 struct soln{
-    std::bitset<item_en_mochila> config;
+    std::bitset< item_en_mochila > config;
+    int id;
     int num_items;
     int fitness;
     double solv_time;
 };
 struct indiv{
-    std::bitset<item_en_mochila> config;
+    std::bitset< item_en_mochila > config;
     int fitness;
     int cost;
 };
 
 void printInst(inst &instance){
-    printf("Peso maximo: %d, Numero de items: %d\n", instance.max_weight, instance.num_items);
+    printf("Id: %d, Peso maximo: %d, Numero de items: %d\n", instance.id, instance.max_weight, instance.num_items);
     for (int i = 0; i < instance.num_items; i++){
         printf("Item %d: Peso=%d, Beneficio=%d\n", i, instance.items[i].first, instance.items[i].second);
     }
@@ -58,7 +62,7 @@ void printInst(inst &instance){
 }
 
 void printSoln(soln solution){
-    printf("Funcion fitness: %d, tiempo: %f\n", solution.fitness, solution.solv_time);
+    printf("Id: %d, Funcion fitness: %d, tiempo: %f\n", solution.id, solution.fitness, solution.solv_time);
     std::cout<< solution.config << std::endl;
 }
 
@@ -70,7 +74,7 @@ int GetInstances(std::vector<inst> &instances, const char* filename, bool verbos
         while (std::getline(infile, line)){
             inst newInst;
             std::istringstream iss(line);
-            //iss >> basura;
+            iss >> newInst.id;
             iss >> newInst.num_items;
             iss >> newInst.max_weight;
             newInst.items.resize(newInst.num_items);
@@ -81,7 +85,7 @@ int GetInstances(std::vector<inst> &instances, const char* filename, bool verbos
                 iss >> newInst.items[i].second;
             }
             instances.push_back(newInst);
-            if (verbose){  // <--- cambiar luego
+            if (verbose){
                 printf("Pushed New Instance:\n");
                 printInst(newInst);
             }
@@ -102,7 +106,7 @@ int Greedy(inst &instance, indiv &individuo, bool verbose){
     std::bitset<item_en_mochila> solnConfig = individuo.config;
     //if (verbose) std::cout<< "solnConfig antes de cambio: " << solnConfig << std::endl;
     std::pair<int, float> datos;
-    std::vector<std::pair<int, float>> densidad_orden;
+    std::vector< std::pair<int, float> > densidad_orden;
     for (int i = 0; i < instance.num_items; i++){//find highest CWR
         //std::cout << instance.items[i].second <<"/" << instance.items[i].first << std::endl;
         //printf("item %i beneficio %d y peso %d \n", i, instance.items[i].second, instance.items[i].first);
@@ -152,7 +156,7 @@ bool Factible(std::vector<indiv> &individuo, std::bitset<item_en_mochila> &NewCo
 }
 
 void generar_individuo_inicial(inst &instancia,std::vector<indiv> &individuo, bool verbose){
-    float r = 0.3; //parametro p en distribucion bernoulli
+    float r = prob_bernoulli;
     std::bitset<item_en_mochila> NewConfig;
     for (int i=0; i<initial_population_size; i++) {
         do{
@@ -201,18 +205,18 @@ bool sort_Poblacion(const indiv& p1, const indiv& p2) {
 int Selection_Offspring(std::vector<indiv> &poblacion, indiv &Offpring1, indiv &Offpring2, bool verbose){
     if (verbose) printf("Eligiendo individuo desde hijos...\n");
     if (Offpring1.fitness >= Offpring2.fitness) {
-        indiv NewIndiv{
-            .config =Offpring1.config,
-            .fitness=Offpring1.fitness,
-            .cost   =Offpring1.cost
+        indiv NewIndiv = {
+            .config     =   Offpring1.config,
+            .fitness    =   Offpring1.fitness,
+            .cost       =   Offpring1.cost
         };
         poblacion.push_back(NewIndiv);
     }
     else{
-        indiv NewIndiv{
-            .config =Offpring2.config,
-            .fitness=Offpring2.fitness,
-            .cost   =Offpring2.cost
+        indiv NewIndiv = {
+            .config     =   Offpring2.config,
+            .fitness    =   Offpring2.fitness,
+            .cost       =   Offpring2.cost
         };
         poblacion.push_back(NewIndiv);
     }
@@ -298,15 +302,37 @@ int CrossOver(indiv &Offspring1,indiv &Offspring2, inst &instances,std::vector<i
     Convertir_Factible_CrossOver(Offspring2, NewOffpring2, instances);
     return 0;
 }
+
+int WriteSolution(soln &solutions, bool verbose){
+    // Escribe las soluciones una por una, agregrando las nuevas encontradas
+    if (verbose) printf("Escribiendo nuevo fitness..\n");
+    std::ofstream myfile;
+    std::string name;
+    name = std::to_string(solutions.id);
+    name += "_memetic.txt";
+    myfile.open(name, std::fstream::in | std::fstream::out | std::fstream::app);
+    if (!myfile.is_open()) {
+        if (verbose) printf("Archivo no fue encontrado o no existe, creando archivo con tal nombre...\n");
+        myfile.open(name,  std::fstream::in | std::fstream::out | std::fstream::trunc);
+        myfile << solutions.id <<"\t"<<solutions.fitness<<"\t"<<solutions.solv_time<<"\t"<<std::endl;
+        myfile.close();
+    }
+    else{
+        if (verbose) printf("Archivo encontrado, comenzando grabado.\n");
+        myfile << solutions.id <<"\t"<<solutions.fitness<<"\t"<<solutions.solv_time<<"\t"<<std::endl;
+        myfile.close();
+    }
+    return 0;
+}
+
 int Memetic(std::vector<inst> &instances, std::vector<soln> &solutions, bool verbose, int max_time, bool resul_check){
-    //start timer
-    std::clock_t start;
+    std::clock_t start; //start timer
     double duration;
-    for (int instancia = 0 ; instancia<instances.size() ; instancia++) {
-        std::cout<<"instancia: "<<instancia+1 <<" corriendo... "<<std::endl;
+    std::vector<indiv> poblacion;
+    indiv Offspring1,Offspring2;
+    for (int instancia = 0 ; instancia < instances.size() ; instancia++) {
+        if (verbose) std::cout<<"instancia: "<< instancia+1 <<" corriendo... "<<std::endl;
         start = std::clock();
-        std::vector<indiv> poblacion;
-        indiv Offspring1,Offspring2;
         //generar sol inicial
         generar_individuo_inicial(instances[instancia],poblacion,verbose);
         //Aplicar LS ->FDD: Greedy de densidad
@@ -329,50 +355,76 @@ int Memetic(std::vector<inst> &instances, std::vector<soln> &solutions, bool ver
             Selection_Offspring(poblacion,Offspring1,Offspring2,verbose);
             //se encontro mejor sol y se guarda
             //stop timer -> save time
-            if (num_iter%20 == 0 || num_iter != 0) { //cada 20 iter eliminar exceso de poblacion
+            if (num_iter%20 == 0 || num_iter != 0) { //cada 20 iter eliminar exceso de poblacion y calcular mejor
                 Reduccion_de_poblacion(poblacion, verbose, resul_check);
+                if  (poblacion[0].fitness > best_fitness){
+                    best_fitness = poblacion[0].fitness;
+                    soln newSoln = {
+                        .config     = poblacion[0].config,
+                        .id         = instances[instancia].id,
+                        .num_items     = instances[0].num_items,
+                        .fitness         = poblacion[0].fitness,
+                        .solv_time      = duration
+                    };
+                    solutions.push_back(newSoln);
+                    WriteSolution(newSoln,verbose);
+                }
             }
             //std::cout << " La mejor solucion hasta ahora: " << poblacion[0].config << std::endl;
             num_iter++;
         }
-        Reduccion_de_poblacion(poblacion, verbose, resul_check);
-        //termina una instancias -> se calcula tiempo y se guarda todo
+        Reduccion_de_poblacion(poblacion, verbose, resul_check); //termina una instancias -> se calcula tiempo y se guarda todo si es mejor
         duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
         if (verbose) printf("duración de %f segundos \n", duration);
-        if (resul_check) std::cout << " La mejor solucion es " << poblacion[0].fitness << std::endl;
-        if (verbose) std::cout << poblacion[0].config << std::endl;
-        soln newSoln = {
-            .config     = poblacion[0].config,
-            .num_items     = instances[instancia].num_items,
-            .fitness         = poblacion[0].fitness,
-            .solv_time      = duration
-        };
-        solutions.push_back(newSoln);
+        if  (poblacion[0].fitness > best_fitness){
+            if (resul_check) std::cout << " La mejor solucion es " << poblacion[0].fitness << std::endl;
+            if (verbose) std::cout << poblacion[0].config << std::endl;
+            soln newSoln = {
+                .config     = poblacion[0].config,
+                .id         = instances[instancia].id,
+                .num_items     = instances[0].num_items,
+                .fitness         = poblacion[0].fitness,
+                .solv_time      = duration
+            };
+            solutions.push_back(newSoln);
+            WriteSolution(newSoln,verbose);
+            if (verbose) printSoln(newSoln);
+        }
         poblacion.clear();
-        if (verbose) printSoln(newSoln);
     }
     return 0;
 }
 int main(int argc, const char** argv){
     std::srand(time(0));
-    std::vector<int> Mejores_soluciones;
     std::vector<inst> instances;
     std::vector<soln> solutions;
+    std::clock_t  global_time = std::clock();
     bool verbose,results_check;
     verbose = false;
     results_check = true;
-    int max_time = 5; //segundos
+    int max_time = 25; //segundos maximos por cada corrida
     GetInstances(instances, argv[1], verbose);
-    int num_ejecuciones=0;
-    while (num_ejecuciones<num_de_corridas) {
+    int num_ejecuciones = 0;
+    int max_fitness = -1; //
+    int cont_fitness_rep = 0; //veces que se repite el maximo fitness
+    while (((std::clock() - global_time) / (double) CLOCKS_PER_SEC < 3600) 
+            && cont_fitness_rep<=30) { //Se ejecuta por una hora y mientras el max fitness no se repita mas de 30 veces, 
+        //agregar (num_ejecuciones<num_de_corridas) para que tenga un numero de corridas definido
         Memetic(instances, solutions, verbose, max_time, results_check);
-        Mejores_soluciones.push_back(solutions[num_ejecuciones].fitness);
         num_ejecuciones++;
+        if (max_fitness == solutions[-1].fitness){
+            cont_fitness_rep++;
+        }
+        else{
+            max_fitness = solutions[-1].fitness;
+        }
     }
     if (results_check) {
         printf("Soluciones encontradas: ");
-        for (int i = 0; i<Mejores_soluciones.size(); i++) std::cout<< Mejores_soluciones[i] << " ";
+        for (int i = 0; i<solutions.size(); i++) std::cout<< solutions[i].fitness << " ";
     }
-    std::cout<<"\n La mejor solucion de las "<< num_de_corridas << " corridas es " << *std::max_element(Mejores_soluciones.begin(), Mejores_soluciones.end()) <<std::endl;
+    if (verbose) std::cout<<"\nLa mejor solucion de las "<< num_de_corridas << " corridas es " << solutions[-1].fitness <<std::endl;
+    instances.clear();
+    solutions.clear();
     return 0;
 }

@@ -49,7 +49,7 @@ int main(int argc, char *argv[]){
 	vector<vector<int >> dp_table(n+1,vector<int>(value_ub+1,weight_ub+1));
 
 	for(int i=1; i<=n; i++){
-		for(int j=1; j<=value_ub; j++){
+		for(int j=0; j<=value_ub; j++){
 			if(values[i-1]>=j)
 				dp_table[i][j]=min(dp_table[i-1][j],weights[i-1]);
 			else if(values[i-1]<j)
@@ -62,17 +62,18 @@ int main(int argc, char *argv[]){
 	//binary search last row for cap
 	int l=1, r=value_ub, m;
 	while(l<=r){
-		m=(l+r)/2;
-		if(m<cap)
-			l=m;
-		else if(m>cap)
-			r=m+1;
+		m=l+(r-l)/2;
+		if(dp_table[n][m]<=cap)
+			l=m+1;
+		else if(dp_table[n][m]>cap)
+			r=m-1;
 		else
 			break;
 	}
 
-	int max_val=dp_table[n][m];
+	int max_val=m-1;
 
+	//fix
 	int rem_val=max_val, col=m;
 
 	for (int i = n; i > 0 && rem_val > 0; i--) {
@@ -90,7 +91,7 @@ int main(int argc, char *argv[]){
 	
 	duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
 
-	cout<<m<<" "<<duration<<endl;
+	cout<<max_val<<" "<<duration<<endl;
 
 	/*
 	for(int i=0; i<n; i++){
@@ -102,7 +103,7 @@ int main(int argc, char *argv[]){
 	/*
 	for(int i=0; i<=n; i++){
 		for(int j=0; j<=value_ub; j++){
-			cout<<dp_table[i][j]<<" ";
+			cout<<j<<" "<<dp_table[n][j]<<" ";
 		}
 		cout<<endl;
 	}

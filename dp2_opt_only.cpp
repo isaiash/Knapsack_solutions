@@ -42,14 +42,13 @@ int main(int argc, char *argv[]){
 	}
 
 
-	clock_t start, interm, finish;
+	clock_t start, finish;
 	double duration;
 
 	start=clock();
 
 	vector<vector<int >> dp_table(n+1,vector<int>(value_ub+1,weight_ub+1));
 
-	int l, r, m;
 	for(int i=1; i<=n; i++){
 		for(int j=0; j<=value_ub; j++){
 			if(values[i-1]>=j)
@@ -59,20 +58,18 @@ int main(int argc, char *argv[]){
 			else
 				dp_table[i][j]=dp_table[i-1][j];
 		}
-		l=1;
-		r=value_ub;
-		while(l<r){
-			m=l+(r-l+1)/2;
-			if(dp_table[i][m]<=cap)
-				l=m;
-			else if(dp_table[i][m]>cap)
-				r=m-1;
-			else
-				break;
-		}
-		interm=clock();
-		duration = ( interm - start ) / (double) CLOCKS_PER_SEC;
-		cout<<id<<" "<<r<<" "<<duration<<endl;
+	}
+
+	//binary search last row for cap
+	int l=1, r=value_ub, m;
+	while(l<r){
+		m=l+(r-l+1)/2;
+		if(dp_table[n][m]<=cap)
+			l=m;
+		else if(dp_table[n][m]>cap)
+			r=m-1;
+		else
+			break;
 	}
 
 	int max_val=r;
@@ -97,7 +94,7 @@ int main(int argc, char *argv[]){
 	cout<<id<<" "<<max_val<<" "<<duration<<endl;
 
 	/*
-	//print solution
+	//print sol
 	for(int i=0; i<n; i++){
 		cout<<solution[i];
 	}
@@ -113,5 +110,4 @@ int main(int argc, char *argv[]){
 		cout<<endl;
 	}
 	*/
-	
 }

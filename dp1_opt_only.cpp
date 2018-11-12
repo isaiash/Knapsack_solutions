@@ -40,7 +40,7 @@ int main(int argc, char *argv[]){
 
 	vector<vector<int >> dp_table(n+1,vector<int>(cap+1,0));
 
-	clock_t start, interm, finish;
+	clock_t start, finish;
 	double duration;
 
 	start=clock();
@@ -53,9 +53,6 @@ int main(int argc, char *argv[]){
 			else
 				dp_table[i][j]=dp_table[i-1][j];
 		}
-		interm=clock();
-		duration=(interm-start)/(double) CLOCKS_PER_SEC;
-		cout<<id<<" "<<dp_table[i][cap]<<" "<<duration<<endl;
 	}
 
 	int max_val=dp_table[n][cap];

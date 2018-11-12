@@ -6,6 +6,7 @@
 #include <ctime>
 
 #define MAXN 1000
+#define SAMPLE 1
 
 using namespace std;
 
@@ -42,14 +43,16 @@ int main(int argc, char *argv[]){
 	}
 
 
-	clock_t start, interm, finish;
+	clock_t start, last, interm, finish;
 	double duration;
 
 	start=clock();
+	last=clock();
 
 	vector<vector<int >> dp_table(n+1,vector<int>(value_ub+1,weight_ub+1));
 
-	int l, r, m;
+	//calcular solucion cada 1s y ver mejora cada 1 s? medio s?
+	int l, r, m, max_val, rem_val, col;
 	for(int i=1; i<=n; i++){
 		for(int j=0; j<=value_ub; j++){
 			if(values[i-1]>=j)
@@ -59,25 +62,45 @@ int main(int argc, char *argv[]){
 			else
 				dp_table[i][j]=dp_table[i-1][j];
 		}
-		l=1;
-		r=value_ub;
-		while(l<r){
-			m=l+(r-l+1)/2;
-			if(dp_table[i][m]<=cap)
-				l=m;
-			else if(dp_table[i][m]>cap)
-				r=m-1;
-			else
-				break;
-		}
 		interm=clock();
-		duration = ( interm - start ) / (double) CLOCKS_PER_SEC;
-		cout<<id<<" "<<r<<" "<<duration<<endl;
+		duration = ( interm - last) / (double) CLOCKS_PER_SEC;
+		if(duration>=SAMPLE){
+			l=1;
+			r=value_ub;
+			while(l<r){
+				m=l+(r-l+1)/2;
+				if(dp_table[i][m]<=cap)
+					l=m;
+				else if(dp_table[i][m]>cap)
+					r=m-1;
+				else
+					break;
+			}
+
+			max_val=r;
+			rem_val=dp_table[i][r];
+			col=r;
+
+			for (int i = n; i > 0 && rem_val > 0; i--) {
+
+				if (rem_val == dp_table[i - 1][col])
+					continue;
+				else {
+					solution.set(i-1);
+					rem_val = rem_val - weights[i - 1];
+					col = col - values[i - 1]; 
+				}
+			}
+			duration=(interm-start)/(double)CLOCKS_PER_SEC;
+			cout<<id<<" "<<r<<" "<<duration<<endl;
+			last=interm;
+		}
+
 	}
 
-	int max_val=r;
-
-	int rem_val=dp_table[n][r], col=r;
+	max_val=r;
+	rem_val=dp_table[n][r];
+	col=r;
 
 	for (int i = n; i > 0 && rem_val > 0; i--) {
 

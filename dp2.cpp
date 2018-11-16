@@ -5,8 +5,8 @@
 #include <bitset>
 #include <ctime>
 
-#define MAXN 1000
-#define SAMPLE 1
+#define MAXN 2000
+#define SAMPLE 0.99
 
 using namespace std;
 

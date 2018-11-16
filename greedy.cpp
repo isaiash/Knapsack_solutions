@@ -13,7 +13,7 @@
 #include <ctime>
 #include <algorithm>
 
-#define item_en_mochila 500
+#define item_en_mochila 2000
 
 typedef std::vector<std::pair<int, int> > ItemVector;
 

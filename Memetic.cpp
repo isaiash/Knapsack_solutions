@@ -417,7 +417,7 @@ int main(int argc, const char** argv){
     int max_fitness = -1; //
     int cont_fitness_rep = 0; //veces que se repite el maximo fitness
     while (((std::clock() - global_time) / (double) CLOCKS_PER_SEC < 3600) 
-            && cont_fitness_rep<=30) { //Se ejecuta por una hora y mientras el max fitness no se repita mas de 30 veces, 
+            && cont_fitness_rep<=50) { //Se ejecuta por una hora y mientras el max fitness no se repita mas de 30 veces, 
         //agregar (num_ejecuciones<num_de_corridas) para que tenga un numero de corridas definido
         Memetic(instances, solutions, verbose, max_time, results_check);
         num_ejecuciones++;

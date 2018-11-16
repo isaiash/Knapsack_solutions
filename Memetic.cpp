@@ -325,6 +325,13 @@ int WriteSolution(soln &solutions, bool verbose){
     return 0;
 }
 
+int WriteSolutiontoConsole(soln &solutions, bool verbose){
+    // Escribe las soluciones una por una, agregrando las nuevas encontradas
+    if (verbose) printf("Mostrando nuevo fitness..\n");
+    std::cout << solutions.id <<"\t"<<solutions.fitness<<"\t"<<solutions.solv_time<<"\t"<<std::endl;
+    return 0;
+}
+
 int Memetic(std::vector<inst> &instances, std::vector<soln> &solutions, bool verbose, int max_time, bool resul_check){
     std::clock_t start; //start timer
     double duration;
@@ -367,7 +374,8 @@ int Memetic(std::vector<inst> &instances, std::vector<soln> &solutions, bool ver
                         .solv_time      = duration
                     };
                     solutions.push_back(newSoln);
-                    WriteSolution(newSoln,verbose);
+                    //WriteSolution(newSoln,verbose);
+                    WriteSolutiontoConsole(newSoln,verbose);
                 }
             }
             //std::cout << " La mejor solucion hasta ahora: " << poblacion[0].config << std::endl;
@@ -387,7 +395,8 @@ int Memetic(std::vector<inst> &instances, std::vector<soln> &solutions, bool ver
                 .solv_time      = duration
             };
             solutions.push_back(newSoln);
-            WriteSolution(newSoln,verbose);
+            //WriteSolution(newSoln,verbose);
+            WriteSolutiontoConsole(newSoln,verbose);
             if (verbose) printSoln(newSoln);
         }
         poblacion.clear();
@@ -401,7 +410,7 @@ int main(int argc, const char** argv){
     std::clock_t  global_time = std::clock();
     bool verbose,results_check;
     verbose = false;
-    results_check = true;
+    results_check = false;
     int max_time = 25; //segundos maximos por cada corrida
     GetInstances(instances, argv[1], verbose);
     int num_ejecuciones = 0;

@@ -134,7 +134,7 @@ int Greeeeeedy(std::vector<inst> instances, std::vector<soln> &solutions, bool v
         }
         //stop timer
         duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-        printf("Tiempo de resolución instancia %d: %f\n", curInst.id ,duration);
+        if (verbose) printf("Tiempo de resolución instancia %d: %f\n", curInst.id ,duration);
         soln newSoln = {
             .config     = solnConfig,
             .id         = curInst.id,
@@ -171,17 +171,25 @@ int WriteSolution(std::vector<soln> &solutions, bool verbose){
     return 0;
 }
 
+int WriteSolutiontoConsole(std::vector<soln> &solutions, bool verbose){
+    if (verbose) printf("Mostrando instancias..\n");
+    for(unsigned int i = 0; i < solutions.size(); i++){
+        std::cout << solutions[i].id <<"\t"<<solutions[i].cost<<"\t"<<solutions[i].time<<"\t"<<std::endl;
+    }
+    return 0;
+}
+
 int main(int argc, const char** argv){
     
     std::vector<inst> instances;
     std::vector<soln> solutions;
     
-    bool verbose;
-    verbose = true;
+    bool verbose = false;
 
     GetInstances(instances, argv[1], verbose);
     Greeeeeedy(instances, solutions, verbose);
-    WriteSolution(solutions,verbose);
+    //WriteSolution(solutions,verbose);
+    WriteSolutiontoConsole(solutions,verbose);
     instances.clear();
     solutions.clear();
     

@@ -66,14 +66,14 @@ int main(int argc, char *argv[]){
 			rem_val=max_val;
 			col=cap;
 
-			for (int i = n; i > 0 && rem_val > 0; i--) {
+			for (int j = n; j > 0 && rem_val > 0; j--) {
 
-				if (rem_val == dp_table[i - 1][col])
+				if (rem_val == dp_table[j - 1][col])
 					continue;
 				else {
-					solution.set(i-1);
-					rem_val = rem_val - values[i - 1];
-					col = col - weights[i - 1]; 
+					solution.set(j-1);
+					rem_val = rem_val - values[j - 1];
+					col = col - weights[j - 1]; 
 				}
 			}
 

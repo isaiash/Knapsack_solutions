@@ -14,8 +14,31 @@
 #include <ctime>
 #include <algorithm>
 
+#define num_max_items 100
+std::clock_t start;
+int id_global;
 ILOSTLBEGIN
-typedef std::vector<std::pair<int, int> > ItemVector;
+/*
+ILOSIMPLEXCALLBACK0(MyCallback) {
+    cout << "Iteration " << getNiterations() << ": ";
+    if ( isFeasible() ) {
+        cout << "Objetivo = " << getObjValue() << endl;
+        cout << "Tiempo encontrado = "<<(std::clock() - start )/(double) CLOCKS_PER_SEC << " segundos "<< endl;
+    } else {
+        cout << "Infeasibility measure = " << getInfeasibility() << endl;
+    }
+};*/
+
+ILOSIMPLEXCALLBACK0(MyCallback) {
+    if ( isFeasible() ) {
+        if (getObjValue() - floor(getObjValue()) <= 0){
+            cout <<id_global << "\t"<< getObjValue() <<"\t" << (std::clock() - start )/(double) CLOCKS_PER_SEC << endl;
+            
+        }
+    }
+};
+
+typedef std::vector<std::pair<int, int>> ItemVector;
 
 struct inst{
     ItemVector items; //weight, cost
@@ -24,10 +47,11 @@ struct inst{
     int num_items;
 };
 struct soln{
-    uint64_t config;
+    std::bitset<num_max_items> config;
     int id;
     int num_items;
     int cost;
+    double tiempo;
 };
 
 void printInst(inst instance){
@@ -46,12 +70,10 @@ void printSoln(soln solution){
 int GetInstances(std::vector<inst> &instances, const char* filename, bool verbose){
     std::string line;
     std::ifstream infile(filename);
-    
     if (infile){
         while (std::getline(infile, line)){
             inst newInst;
             std::istringstream iss(line);
-            
             iss >> newInst.id;
             iss >> newInst.num_items;
             iss >> newInst.max_weight;
@@ -69,8 +91,12 @@ int GetInstances(std::vector<inst> &instances, const char* filename, bool verbos
             }
         }
     }
+    else{
+        printf("No se ha encontrado/No se ha podido abrir el archivo");
+    }
     return 0;
 }
+
 
 int CPLEX_SOLVER(std::vector<inst> instances, std::vector<soln> &solutions, bool verbose){
     
@@ -78,9 +104,8 @@ int CPLEX_SOLVER(std::vector<inst> instances, std::vector<soln> &solutions, bool
     while (!instances.empty()){
         inst curInst = instances.back();
         instances.pop_back();
-        std::bitset<40> solnConfig;
-        //start timer
-        std::clock_t start;
+        id_global = curInst.id;
+        std::bitset<num_max_items> solnConfig;
         double duration;
         int solnCost=-1;
         //Aca empieza a cargar los datos en CPLEX
@@ -102,30 +127,39 @@ int CPLEX_SOLVER(std::vector<inst> instances, std::vector<soln> &solutions, bool
                 std::cout<< curInst.items[i].second<<"* item["<<i<<"]"<<" + ";
             }
             std::cout<<std::endl;*/
-            
             //Ingreso a Cplex
             IloObjective ReduceCost = IloAdd(model, IloMaximize(env));
             for (int i = 0; i<curInst.num_items; i++){ //llenando con los costos/beneficios
                 ReduceCost.setLinearCoef(item[i], curInst.items[i].second);
             }
             IloCplex Solver(model);
+            Solver.setOut(env.getNullStream()); //para no mostrar el motor de Cplex
+            Solver.use(MyCallback(env));
             //Solver.setParam(IloCplex::TiLim, 1);// Para darle un limite de tiempo
-            start = std::clock();
-            if (!Solver.solve()) {
+            start = std::clock(); //start time
+            if (!Solver.solve()){
                 env.error() << "Failed to optimize LP." << endl;
                 throw(-1);
             }
             duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-            printf("%f\n", duration);
+            if (verbose) printf("duration: %f\n", duration);
             IloNumArray vals(env);
-            env.out() << "Solution status = " << Solver.getStatus() << endl;
+            //env.out() << "Solution status = " << Solver.getStatus() << endl;
+            //env.out() << "Solution status = " << Solver.getStatus() << endl;
+            //env.out() << "Solution value = " << Solver.getObjValue() << endl;
+            env.out() <<curInst.id << "\t"<< Solver.getObjValue() << "\t" << duration<<endl;
+            //Solver.getValues(vals, item);
+            //env.out() << "Values = " << vals<< endl;
             solnCost = (int) Solver.getStatus();
-            env.out() << "Solution value = " << Solver.getObjValue() << endl;
-            Solver.getValues(vals, item);
-            env.out() << "Values = " << vals<< endl;
+            int sumita=0;
             for (int i = 0; i<curInst.num_items; i++){ //llenando con los costos/beneficios
                 solnConfig[i] = Solver.getValue(item[i]);
+                if (Solver.getValue(item[i]) != 0 &&
+                    Solver.getValue(item[i]) != -0){
+                    sumita++;
+                }
             }
+            if (verbose) cout<< "Cantidad de elementos puesto en la mochila: " << sumita << endl;
         }
         catch (IloException& e) {
             cerr << "Concert exception caught: " << e << endl;
@@ -137,10 +171,11 @@ int CPLEX_SOLVER(std::vector<inst> instances, std::vector<soln> &solutions, bool
         //fuera de cplex
         
         soln newSoln = {
-            .config     = solnConfig.to_ullong(),
+            .config     = solnConfig,
             .id         = curInst.id,
             .num_items    = curInst.num_items,
-            .cost         = solnCost
+            .cost         = solnCost,
+            .tiempo     = duration
         };
         solutions.push_back(newSoln);
         if (verbose) printSoln(newSoln);
@@ -153,7 +188,7 @@ int main(int argc, const char** argv){
     std::vector<inst> instances;
     std::vector<soln> solutions;
     bool verbose = false;
-    printf("Comienza resolución con Cplex")
+    if (verbose) printf("Comienza resolución con Cplex \n");
     GetInstances(instances, argv[1], verbose);
     CPLEX_SOLVER(instances, solutions, verbose);
     

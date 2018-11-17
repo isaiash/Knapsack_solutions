@@ -81,14 +81,14 @@ int main(int argc, char *argv[]){
 			rem_val=dp_table[i][r];
 			col=r;
 
-			for (int i = n; i > 0 && rem_val > 0; i--) {
+			for (int j = n; j > 0 && rem_val > 0; j--) {
 
-				if (rem_val == dp_table[i - 1][col])
+				if (rem_val == dp_table[j - 1][col])
 					continue;
 				else {
-					solution.set(i-1);
-					rem_val = rem_val - weights[i - 1];
-					col = col - values[i - 1]; 
+					solution.set(j-1);
+					rem_val = rem_val - weights[j - 1];
+					col = col - values[j - 1]; 
 				}
 			}
 			duration=(interm-start)/(double)CLOCKS_PER_SEC;

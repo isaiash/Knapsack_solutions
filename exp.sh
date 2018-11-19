@@ -15,5 +15,5 @@ then
 	done
 
 else
-	echo "$1.cpp: file not found"
+	echo "$1: file not found"
 fi

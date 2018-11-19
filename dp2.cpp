@@ -95,7 +95,18 @@ int main(int argc, char *argv[]){
 			cout<<id<<" "<<r<<" "<<duration<<endl;
 			last=interm;
 		}
+	}
 
+	l=1;
+	r=value_ub;
+	while(l<r){
+		m=l+(r-l+1)/2;
+		if(dp_table[n][m]<=cap)
+			l=m;
+		else if(dp_table[n][m]>cap)
+			r=m-1;
+		else
+			break;
 	}
 
 	max_val=r;

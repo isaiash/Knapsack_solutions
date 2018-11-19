@@ -103,7 +103,7 @@ int RoundCosts(std::vector<inst> &instances, int binSize, bool verbose){
     return 0;
 }
 
-//algos
+//algosn
 int Greeeeeedy(std::vector<inst> instances, std::vector<soln> &solutions, bool verbose){
     //start timer
     std::clock_t start;
@@ -117,10 +117,10 @@ int Greeeeeedy(std::vector<inst> instances, std::vector<soln> &solutions, bool v
         int solnCost = 0;
         std::bitset<item_en_mochila> solnConfig;
         for (int j = 0; j < curInst.num_items; j++){
-            int topCWR = 0;
+            double topCWR = 0;
             int topCWRindex = -1;
             for (int i = 0; i < curInst.num_items; i++){//find highest CWR
-                int curCWR = curInst.items[i].second / curInst.items[i].first;
+                double curCWR = curInst.items[i].second / (double)curInst.items[i].first;
                 if (curCWR > topCWR && solnWeight + curInst.items[i].first <= curInst.max_weight && !solnConfig.test(i)){
                     topCWR = curCWR;
                     topCWRindex = i;

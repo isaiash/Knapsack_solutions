@@ -9,9 +9,9 @@ then
 		rm results_$1.dat
 	fi
 
-	for i in ./Uniform/*
+	for i in ./Uniform/DataSet/*
 	do
-		./dp1 $i >> results_$1.dat
+		./$1 $i >> results_$1.dat
 	done
 
 else

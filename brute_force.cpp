@@ -6,6 +6,7 @@
 #include <sstream>
 #include <utility>
 #include <vector>
+#include <stack> 
 #include <bitset>
 #include <cmath>
 #include <cstdint>
@@ -54,9 +55,16 @@ void printInst(inst instance)
 	printf("\n");
 }
 
-void printSoln(soln solution){
+void printSol(std::stack<std::pair<uint64_t, double>> s){
+    while (!s.empty()){ 
+        printf("%lld %f\n", s.top().first, s.top().second);
+        // std::cout << s.top().first << ' ' << s.top().second <<std::endl; 
+        s.pop(); 
+    } 
+    //cout << '\n';
+    //printf("%lld %f\n", s.first, s.second);
 	//printf("n: %d, cost: %d, config: %lld\n", solution.num_items, solution.cost, solution.config);
-	printf("%lld ", solution.config);
+	//printf("%lld ", solution.config);
 	//std::cout << "sol: " << toBinaryString(solution.config) << std::endl;
 }
 
@@ -111,11 +119,12 @@ int RoundCosts(std::vector<inst> &instances, int binSize){
 int Bruteforce(std::vector<inst> instances, std::vector<soln> &solutions){
 	std::clock_t start;
     double duration;
+    std::stack <std::pair<uint64_t, double>> s; 
 
 	while (!instances.empty()){
 	    start = std::clock();
-		inst curInst = instances.front();
-		pop_front(instances);
+		inst curInst = instances.back();
+        instances.pop_back();
 
 		int topCost = 0;
 		uint64_t topConfig = 0;
@@ -149,12 +158,16 @@ int Bruteforce(std::vector<inst> instances, std::vector<soln> &solutions){
 		};
 	    
 		solutions.push_back(newSoln);
-		printSoln(newSoln);
+		// printSoln(newSoln);
 		
 		//stop timer
 	    duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-	    printf("%f\n", duration);
+	    //printf("%f\n", duration);
+	    std::pair <uint64_t, double> ret;
+	    ret = std::make_pair(newSoln.config, duration);
+	    s.push(ret);
 	}
+	printSol(s);
 
 	return 0;
 }

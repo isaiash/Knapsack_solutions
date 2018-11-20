@@ -14,9 +14,10 @@
 #include <ctime>
 #include <algorithm>
 
-#define num_max_items 100
+#define num_max_items 1000000
 std::clock_t start;
 int id_global;
+int max_global;
 ILOSTLBEGIN
 /*
 ILOSIMPLEXCALLBACK0(MyCallback) {
@@ -31,9 +32,9 @@ ILOSIMPLEXCALLBACK0(MyCallback) {
 
 ILOSIMPLEXCALLBACK0(MyCallback) {
     if ( isFeasible() ) {
-        if (getObjValue() - floor(getObjValue()) <= 0){
+        if (getObjValue() - floor(getObjValue()) <= 0 && getObjValue() > max_global){
             cout <<id_global << "\t"<< getObjValue() <<"\t" << (std::clock() - start )/(double) CLOCKS_PER_SEC << endl;
-            
+            max_global = getObjValue();
         }
     }
 };
@@ -188,6 +189,7 @@ int main(int argc, const char** argv){
     std::vector<inst> instances;
     std::vector<soln> solutions;
     bool verbose = false;
+    max_global = -1;
     if (verbose) printf("Comienza resolución con Cplex \n");
     GetInstances(instances, argv[1], verbose);
     CPLEX_SOLVER(instances, solutions, verbose);

@@ -5,7 +5,7 @@
 #include <bitset>
 #include <ctime>
 
-#define MAXN 2000
+#define MAX 2000
 #define SAMPLE 0.99
 
 using namespace std;
@@ -14,7 +14,7 @@ int main(int argc, char *argv[]){
 	int n, cap, id;
 	vector<int> weights;
 	vector<int> values;
-	bitset<MAXN> solution;
+	//bitset<MAXN> solution;
 
 	if(argc!=2){
 		cerr<<"Usage: "<<argv[0]<<" 'instace file name'"<<endl;
@@ -78,9 +78,10 @@ int main(int argc, char *argv[]){
 			}
 
 			max_val=r;
+
+			/*
 			rem_val=dp_table[i][r];
 			col=r;
-
 			for (int j = n; j > 0 && rem_val > 0; j--) {
 
 				if (rem_val == dp_table[j - 1][col])
@@ -91,8 +92,9 @@ int main(int argc, char *argv[]){
 					col = col - values[j - 1]; 
 				}
 			}
+			*/
 			duration=(interm-start)/(double)CLOCKS_PER_SEC;
-			cout<<id<<" "<<r<<" "<<duration<<endl;
+			cout<<id<<" "<<max_val<<" "<<duration<<endl;
 			last=interm;
 		}
 	}
@@ -110,9 +112,10 @@ int main(int argc, char *argv[]){
 	}
 
 	max_val=r;
+
+	/*
 	rem_val=dp_table[n][r];
 	col=r;
-
 	for (int i = n; i > 0 && rem_val > 0; i--) {
 
 		if (rem_val == dp_table[i - 1][col])
@@ -122,7 +125,7 @@ int main(int argc, char *argv[]){
 			rem_val = rem_val - weights[i - 1];
 			col = col - values[i - 1]; 
 		}
-	}
+	}*/
 
 	finish=clock();
 	
@@ -146,6 +149,5 @@ int main(int argc, char *argv[]){
 		}
 		cout<<endl;
 	}
-	*/
-	
+	*/	
 }

@@ -15,7 +15,7 @@ int main(int argc, char *argv[]){
 	int n, cap, id;
 	vector<int> weights;
 	vector<int> values;
-	bitset<MAXN> solution;
+	//bitset<MAXN> solution;
 
 	if(argc!=2){
 		cerr<<"Usage: "<<argv[0]<<" 'instacefilename'"<<endl;
@@ -61,11 +61,12 @@ int main(int argc, char *argv[]){
 
 		//display sol improvement every "SAMPLE" time
 		if(duration>=SAMPLE){
-			//reconstruct solution
 			max_val=dp_table[i][cap];
+
+			/*
+			//solution config
 			rem_val=max_val;
 			col=cap;
-
 			for (int j = n; j > 0 && rem_val > 0; j--) {
 
 				if (rem_val == dp_table[j - 1][col])
@@ -75,19 +76,21 @@ int main(int argc, char *argv[]){
 					rem_val = rem_val - values[j - 1];
 					col = col - weights[j - 1]; 
 				}
-			}
+			}*/
 
 			//display solution and time
 			duration=(interm-start)/(double) CLOCKS_PER_SEC;
-			cout<<id<<" "<<dp_table[i][cap]<<" "<<duration<<endl;
+			cout<<id<<" "<<max_val<<" "<<duration<<endl;
 			last=interm;
 		}
 	}
 
 	max_val=dp_table[n][cap];
+
+	/*
+	//solution config
 	rem_val=max_val;
 	col=cap;
-
 	for (int i = n; i > 0 && rem_val > 0; i--) {
 
 		if (rem_val == dp_table[i - 1][col])
@@ -97,7 +100,7 @@ int main(int argc, char *argv[]){
 			rem_val = rem_val - values[i - 1];
 			col = col - weights[i - 1]; 
 		}
-	}
+	}*/
 
 	finish=clock();
 

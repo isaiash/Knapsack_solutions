@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <ctime>
 
+#define MAX_TABLE_SIZE 8000000000
 #define MAXN 2000
 #define SAMPLE 0.99
 
@@ -28,6 +29,14 @@ int main(int argc, char *argv[]){
 	infile>>cap;//knapsack capacity
 
 	int it_weight, it_value;
+
+	unsigned long long table_size=(n+1)*(cap+1)*sizeof(int);
+	
+	//table too big for memory
+	if(table_size>MAX_TABLE_SIZE){
+		cout<<id<<" "<<-1<<" "<<-1<<endl;
+		return 1;
+	}
 	
 	for(int i=0; i<n; i++){
 		infile>>it_weight;
@@ -38,6 +47,7 @@ int main(int argc, char *argv[]){
 		infile>>it_value;
 		values.push_back(it_value);
 	}
+
 
 	vector<vector<int >> dp_table(n+1,vector<int>(cap+1,0));
 

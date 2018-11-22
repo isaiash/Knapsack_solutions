@@ -20,7 +20,7 @@
 #define prob_mutate 0.01
 #define num_max_selection 5 //Se elige los num_max_selection individuos para escoger siguiente padre
 #define prob_uniform_CrossOver 0.5
-#define item_en_mochila 2000 ///<------cambiar por cada tipo de instancias
+#define item_en_mochila 1000000 ///<------cambiar por cada tipo de instancias
 #define num_de_corridas 10
 #define prob_bernoulli 0.3 //parametro p en distribucion bernoulli para crear individuos iniciales
 

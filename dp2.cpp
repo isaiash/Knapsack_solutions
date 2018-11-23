@@ -5,6 +5,7 @@
 #include <bitset>
 #include <ctime>
 
+#define MAX_TABLE_SIZE 8000000000
 #define MAX 2000
 #define SAMPLE 0.99
 
@@ -42,12 +43,18 @@ int main(int argc, char *argv[]){
 		values.push_back(it_value);
 	}
 
+	unsigned long long table_size=(n+1)*(value_ub+1)*sizeof(int);
+	if(table_size>MAX_TABLE_SIZE){
+		cout<<id<<" "<<-1<<" "<<-1;
+		return 1;
+	}
 
 	clock_t start, last, interm, finish;
 	double duration;
 
 	start=clock();
 	last=clock();
+
 
 	vector<vector<int >> dp_table(n+1,vector<int>(value_ub+1,weight_ub+1));
 

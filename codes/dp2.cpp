@@ -1,9 +1,9 @@
-//dp dual
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <bitset>
 #include <ctime>
+#include <algorithm>
 
 #define MAX_TABLE_SIZE 8000000000
 #define MAX 2000
@@ -15,10 +15,12 @@ int main(int argc, char *argv[]){
 	int n, cap, id;
 	vector<int> weights;
 	vector<int> values;
+	vector<double> densities;
 	//bitset<MAXN> solution;
 
 	if(argc!=2){
 		cerr<<"Usage: "<<argv[0]<<" 'instace file name'"<<endl;
+		return 0;
 	}
 
 	ifstream infile(argv[1]);
@@ -28,6 +30,7 @@ int main(int argc, char *argv[]){
 	infile>>cap;
 
 	int it_weight, it_value;
+	double it_density;
 
 	int weight_ub=0;	
 	for(int i=0; i<n; i++){
@@ -36,17 +39,13 @@ int main(int argc, char *argv[]){
 		weights.push_back(it_weight);
 	}
 
-	int value_ub=0;
+	vector<int> d_order;
 	for(int i=0; i<n; i++){
 		infile>>it_value;
-		value_ub+=it_value;
+		it_density=it_value/(double)weights[i];
 		values.push_back(it_value);
-	}
-
-	unsigned long long table_size=(n+1)*(value_ub+1)*sizeof(int);
-	if(table_size>MAX_TABLE_SIZE){
-		cout<<id<<" "<<-1<<" "<<-1;
-		return 1;
+		densities.push_back(it_density);
+		d_order.push_back(i);
 	}
 
 	clock_t start, last, interm, finish;
@@ -54,7 +53,35 @@ int main(int argc, char *argv[]){
 
 	start=clock();
 	last=clock();
+	
+	struct comp{
+                const vector<double> &value_vector;
 
+                comp(const vector<double> &val_vec):
+                        value_vector(val_vec) {}
+
+                bool operator()(int i1, int i2){
+                        return value_vector[i1]>value_vector[i2];
+                }
+        };
+
+	sort(d_order.begin(),d_order.end(),comp(densities));
+
+	int cur_w=0, value_ub=0, ind=0;
+
+	//get value upper bound;
+	while(cur_w<cap){
+		value_ub+=values[d_order[ind]];
+		cur_w+=weights[d_order[ind]];
+		ind++;
+	}
+	value_ub+=values[d_order[ind]];
+
+	unsigned long long table_size=(n+1)*(value_ub+1)*sizeof(int);
+	if(table_size>MAX_TABLE_SIZE){
+		cout<<id<<" "<<-1<<" "<<-1<<endl;
+		return 1;
+	}
 
 	vector<vector<int >> dp_table(n+1,vector<int>(value_ub+1,weight_ub+1));
 
@@ -158,3 +185,4 @@ int main(int argc, char *argv[]){
 	}
 	*/	
 }
+

@@ -50,7 +50,7 @@ bool comparePW (sorts one, sorts two) {
 }
 
 //initialize functions
-void knapsack3(int n, int p[], int w[], int W, int maxprofit);
+void knapsack3(int n, int p[], int w[], int W, int maxprofit, std::clock_t start);
 float bound(int n, int p[], int w[], int W, node u);
 int readFile(char*);
 
@@ -72,6 +72,8 @@ int main(int argc, char ** argv) {
 	input = argv[1];
 	readFile(input);
     
+    std::clock_t start = clock();
+	
     sorts s[n]; //create array of sorts of size n items
     
     for (int i = 0; i < n; i++) { //populate array of sorts with respective price/weight's and index's
@@ -90,7 +92,7 @@ int main(int argc, char ** argv) {
     }
     
     //call our knapsack 3 function
-    knapsack3(n, pSorted, wSorted, W, maxprofit);
+    knapsack3(n, pSorted, wSorted, W, maxprofit, (clock() - start ) / (double) CLOCKS_PER_SEC);
 }
 
 int readFile(char * filename) {
@@ -166,14 +168,11 @@ int readFile(char * filename) {
 
 /* knapsack3 serves as a function to solve our knapsack problem in which we are given a set of items, each with a weight and a profit, and we must determine the number of each item to include in a collection so that the total weight is less than or equal to a given maximum weight W and the total value is as large as possible. Knapsack3 specifically uses the Branch & Bound Best-First search method to solve this problem. Knapsack3 uses a priority queue to organize nodes by their upper bounds, and calls for the help of our bound function to do so. knapsack3 uses an algorithm similar to Breadth-First Search, in which we have a root node v, and continue to explore neighboring nodes first, before continuing to further levels. Knapsack3 optimizes this method by identifying promising, unexplored nodes and simply expanding the one with the most promising/best bound. knapsack3 takes an integer for number of items n,  profit and weight arrays - assumed sorted, a maximum weight W greater than or equal to 0, and a maximum profit maxprofit. */
 
-void knapsack3(int n, int p[], int w[], int W, int maxprofit) {
+void knapsack3(int n, int p[], int w[], int W, int maxprofit, clock_t init_start) {
     int optSize = 0; //initialize current optimal size 0
     int numNodes = 1; //initalize current number of nodes visited to 1, to account for root node
     int numLeaves = 0; //initalize current number of leaf nodes visited to 0
-    
-    std::clock_t start;
-    double duration;
-	start = std::clock();
+    int count = 0;
     
     //initialize priority queue of nodes Q
     priority_queue<node>Q;
@@ -187,9 +186,10 @@ void knapsack3(int n, int p[], int w[], int W, int maxprofit) {
     
     v.bound = bound(n, p, w, W, v);
     Q.push(v); //enqueue v
-    
     //remove node with best bound
+
     while(!Q.empty()){
+        
         v= Q.top();
         Q.pop();
         //expand v to see if it is promising
@@ -204,8 +204,10 @@ void knapsack3(int n, int p[], int w[], int W, int maxprofit) {
             u.k.at(u.level-1) = 1; //designate part of personal solution
             if(u.weight <= W && u.profit > maxprofit) {
                 maxprofit = u.profit;
-                duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-                cout << id << " " << maxprofit << " " << duration << endl;
+                if(count > 10){
+                    cout << id << " " << maxprofit << " " << ( clock() - init_start ) / (double) CLOCKS_PER_SEC << endl;
+                    count = 0;
+                }
                 optimalSolution = u.k; //add to global optimal solution
             }
             
@@ -232,14 +234,15 @@ void knapsack3(int n, int p[], int w[], int W, int maxprofit) {
         }//queue is empty
         else
             numLeaves++; //increment number of leaf nodes visited
+        count++;
     }
     
     //calculate size of our optimal solution from optimalSolution global variable
-    for (int i = 0; i < optimalSolution.size(); i++) {
-        if (optimalSolution.at(i) == 1)
-            optSize++;
-    }
-
+    //for (int i = 0; i < optimalSolution.size(); i++) {
+    //    if (optimalSolution.at(i) == 1)
+    //        optSize++;
+    //}
+    cout << id << " " << maxprofit << " " << ( clock() - init_start ) / (double) CLOCKS_PER_SEC << endl;
 }
 
 

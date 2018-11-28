@@ -1,3 +1,4 @@
+#include<iostream>
 #include<stdio.h>
 #include<cstdlib>
 #include<cstring>
@@ -8,7 +9,8 @@
 int id;
 int size;
 int capacity;
-int *weight,*profit,*selected;
+int *weight,*profit;
+double *r;
 
 /*Funtion declaration*/
 int readFile(char*);
@@ -28,7 +30,7 @@ int main(int argc, char ** argv){
 	totalProfit = greedy();
 
 	/*Free the allocated memory*/
-	free(selected);
+	free(r);
 	free(weight);
 	free(profit);
 	return 0;
@@ -75,7 +77,7 @@ int readFile(char * filename) {
 		// create weight and profit array
 		weight = (int*) malloc(sizeof(int)*size);
 		profit = (int*) malloc(sizeof(int)*size);
-		selected = (int*) malloc(sizeof(int)*size);
+		r = (double*) malloc(sizeof(double)*size);
 		ch=fgetc(fp);
 		//Read the weights.
 		for(i=0;i<size;i++){
@@ -97,6 +99,7 @@ int readFile(char * filename) {
 			}
 			num[j]='\n';
 			profit[i]=atoi(num);
+			r[i] = profit[i] / weight[i];
 			ch=fgetc(fp);
 		}	
 	}	
@@ -104,51 +107,33 @@ int readFile(char * filename) {
 	return 0;
 }
 int greedy() {
-	int i,j,temp;
-	int result=0,greedyCap=capacity;
-	int tempArr[size],tempWt[size],tempProfit[size];
-	float val1,val2;
-	
+    int knapsack = 0;
+	int price = 0;
 	std::clock_t start;
     double duration;
 	start = std::clock();
 	
-	for(i=0;i<size;i++) {
-		tempArr[i]=i;
-		tempWt[i]=weight[i];
-		tempProfit[i]=profit[i];
-		selected[i]=0;
-	}
+	for(int j = 0; j < size; j++){
 
-	for(i=0;i<size;i++) {
-		for(j=0;j<size - i-1;j++) {
-			val1 = ((float)tempProfit[j]/ (float)tempWt[j]);
-			val2 = ((float)tempProfit[j+1]/(float) tempWt[j+1]);
-			if( val1 < val2 ){
-				//swap profit
-				temp=tempProfit[j];
-				tempProfit[j]=tempProfit[j+1];
-				tempProfit[j+1]=temp;
-				//swap weights
-				temp=tempWt[j];
-				tempWt[j]=tempWt[j+1];
-				tempWt[j+1]=temp;
-				//swap item number as well
-				temp=tempArr[j];
-				tempArr[j]=tempArr[j+1];
-				tempArr[j+1]=temp;
+		double max = 0;
+		int index = -1;
+
+		for (int i = 0; i < size; i++) {
+			if (r[i] >= max) {
+				max = r[i];
+				index = i;
 			}
 		}
-	}
-	
-	for(i=0;i<size;i++) {
-		if(tempWt[i] <= greedyCap && greedyCap > 0) {
-			result+=tempProfit[i];
-			greedyCap -=tempWt[i];
-			selected[tempArr[i]]=1;
-		}	
+		knapsack += weight[index];
+		if (capacity < knapsack) {
+			knapsack -= weight[index];
+		}
+		else {
+			price += profit[index];
+		}
+		r[index] = -1;
 	}
 	duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-	printf("%d %d %f\n", id, result, duration);
-	return result;
+	std::cout << id <<" "<<price<<" "<< duration << std::endl;
+	return price;
 }

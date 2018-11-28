@@ -1,6 +1,6 @@
 #!/bin/bash
 #$1 executable dir
-#$2 instances dir
+#$2 instances zip file
 #$3 qsub output dir
 #$4 output results dir
 

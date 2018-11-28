@@ -8,7 +8,7 @@
 
 #define MAX_TABLE_SIZE 8000000000
 #define MAXN 2000
-#define SAMPLE 0.99
+#define SAMPLE 0.1
 
 using namespace std;
 
@@ -20,6 +20,7 @@ int main(int argc, char *argv[]){
 
 	if(argc!=2){
 		cerr<<"Usage: "<<argv[0]<<" 'instacefilename'"<<endl;
+		return 0;
 	}
 
 	ifstream infile(argv[1]);

@@ -7,7 +7,7 @@
 
 #define MAX_TABLE_SIZE 8000000000
 #define MAX 2000
-#define SAMPLE 0.99
+#define SAMPLE 0.1
 
 using namespace std;
 

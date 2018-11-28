@@ -3,7 +3,7 @@
 source ~/.bashrc
 #$ -S /bin/bash
 # $1 executable file absolute path in host
-# $2 instace zip file absolute path in host
+# $2 instace directory absolute path in host
 # $3 results directory absolute path in host
 
 rm -r -f /tmp/$$.tmp
@@ -11,8 +11,11 @@ mkdir -p /tmp/$$.tmp
 mkdir /tmp/$$.tmp/instances
 cd /tmp/$$.tmp
 
-cp $2 /tmp/$$.tmp
-unzip -q -j /tmp/$$.tmp/$(basename $2) -d /tmp/$$.tmp/instances
+#copy instances to tmp
+for inst in $(ls $2)
+do
+	cp $2/$inst ./instances/$inst
+done
 
 exeBaseName=$(basename $1)
 

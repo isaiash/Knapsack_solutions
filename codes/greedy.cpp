@@ -1,139 +1,78 @@
-#include<iostream>
-#include<stdio.h>
-#include<cstdlib>
-#include<cstring>
-#include<cmath>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <bitset>
 #include <ctime>
+#include <algorithm>
 
-/* Globale variable */
-int id;
-int size;
-int capacity;
-int *weight,*profit;
-double *r;
+using namespace std;
 
-/*Funtion declaration*/
-int readFile(char*);
-int printResult(int);
-int greedy();
+struct comp{
+	const vector<double> &value_vector;
 
-int main(int argc, char ** argv){
-	char *input;
-	int i,totalProfit=0,totalWeight=0;
-	if(argc!=2) {
-		printf("\nError: Invalid number of arguments!\n\n");
-		return 0;
+	comp(const vector<double> &val_vec):
+		value_vector(val_vec) {}
+
+	bool operator()(int i1, int i2){
+		return value_vector[i1]>value_vector[i2];
 	}
-	input = argv[1];
-	readFile(input);
+};
 
-	totalProfit = greedy();
 
-	/*Free the allocated memory*/
-	free(r);
-	free(weight);
-	free(profit);
-	return 0;
-}
+int main(int argc, char *argv[]){
+	int n, cap, id;
+        vector<int> weights;
+        vector<int> values;
+        vector<double> densities;
 
-int readFile(char * filename) {
-	FILE *fp;
-	char num[255];
-	int i=0,j=0;
+	if(argc!=2){
+                cerr<<"Usage: "<<argv[0]<<" 'instace file name'"<<endl;
+                return 0;
+        }
 
-	fp = fopen(filename,"r");
-	if(fp == NULL) {
-		printf("\nERROR in opening the file!\n\n");
-		return 0;
-	}
-	char ch;
-	ch=fgetc(fp);
-	while(ch!='\n' && ch!=EOF) {
-	    //Read id;
-		while(ch!=' '){
-			num[j++]=ch;
-			ch=fgetc(fp);
-		}
-		num[j]='\n';
-		id = atoi(num);
-		//Read size;
-		ch=fgetc(fp);
-		j=0;
-		while(ch!=' '){
-			num[j++]=ch;
-			ch=fgetc(fp);
-		}
-		num[j]='\n';
-		size = atoi(num);
-		//Read capacity
-		ch=fgetc(fp);
-		j=0;
-		while(ch!=' '){
-			num[j++]=ch;
-			ch=fgetc(fp);
-		}
-		num[j]='\n';
-		capacity = atoi(num);
-		// create weight and profit array
-		weight = (int*) malloc(sizeof(int)*size);
-		profit = (int*) malloc(sizeof(int)*size);
-		r = (double*) malloc(sizeof(double)*size);
-		ch=fgetc(fp);
-		//Read the weights.
-		for(i=0;i<size;i++){
-			j=0;
-			while(ch!=' '){
-				num[j++]=ch;
-				ch=fgetc(fp);
-			}
-			num[j]='\n';
-			weight[i]=atoi(num);
-			ch=fgetc(fp);
-		}
-		//Read the profit.
-		for(i=0;i<size;i++){
-			j=0;
-			while(ch!=' ' && ch!=EOF){
-				num[j++]=ch;
-				ch=fgetc(fp);
-			}
-			num[j]='\n';
-			profit[i]=atoi(num);
-			r[i] = profit[i] / weight[i];
-			ch=fgetc(fp);
-		}	
-	}	
-	fclose(fp);
-	return 0;
-}
-int greedy() {
-    int knapsack = 0;
-	int price = 0;
-	std::clock_t start;
-    double duration;
-	start = std::clock();
+        ifstream infile(argv[1]);
+
+        infile>>id;
+        infile>>n;
+        infile>>cap;
+
+        int it_weight, it_value;
+        double it_density;
+
+        for(int i=0; i<n; i++){
+                infile>>it_weight;
+                weights.push_back(it_weight);
+        }
+
+        vector<int> d_order;
+        for(int i=0; i<n; i++){
+                infile>>it_value;
+                it_density=it_value/(double)weights[i];
+                values.push_back(it_value);
+                densities.push_back(it_density);
+                d_order.push_back(i);
+        }
+
+	clock_t start, finish;
+        double duration;
+
+	start=clock();
+
+        sort(d_order.begin(),d_order.end(),comp(densities));
+
+        int cur_w=0, max_val=0;
 	
-	for(int j = 0; j < size; j++){
-
-		double max = 0;
-		int index = -1;
-
-		for (int i = 0; i < size; i++) {
-			if (r[i] >= max) {
-				max = r[i];
-				index = i;
-			}
-		}
-		knapsack += weight[index];
-		if (capacity < knapsack) {
-			knapsack -= weight[index];
-		}
-		else {
-			price += profit[index];
-		}
-		r[index] = -1;
+	for(int i=0; i<n; i++){
+		cur_w+=weights[d_order[i]];
+		if(cur_w>cap)
+			cur_w-=weights[d_order[i]];
+		else
+			max_val+=values[d_order[i]];
 	}
-	duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-	std::cout << id <<" "<<price<<" "<< duration << std::endl;
-	return price;
+
+	finish=clock();
+
+	duration=(finish - start)/(double)CLOCKS_PER_SEC;
+
+	cout<<id<<" "<<max_val<<" "<<duration<<endl;
 }

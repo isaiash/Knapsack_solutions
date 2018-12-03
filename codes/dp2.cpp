@@ -11,6 +11,17 @@
 
 using namespace std;
 
+struct comp{
+	const vector<double> &value_vector;
+
+	comp(const vector<double> &val_vec):
+		value_vector(val_vec) {}
+
+	bool operator()(int i1, int i2){
+		return value_vector[i1]>value_vector[i2];
+	}
+};
+
 int main(int argc, char *argv[]){
 	int n, cap, id;
 	vector<int> weights;
@@ -54,28 +65,21 @@ int main(int argc, char *argv[]){
 	start=clock();
 	last=clock();
 	
-	struct comp{
-                const vector<double> &value_vector;
-
-                comp(const vector<double> &val_vec):
-                        value_vector(val_vec) {}
-
-                bool operator()(int i1, int i2){
-                        return value_vector[i1]>value_vector[i2];
-                }
-        };
-
 	sort(d_order.begin(),d_order.end(),comp(densities));
 
-	int cur_w=0, value_ub=0, ind=0;
+	int cur_w=weights[d_order[0]], value_ub=0, ind=0;
 
 	//get value upper bound;
 	while(cur_w<cap){
 		value_ub+=values[d_order[ind]];
-		cur_w+=weights[d_order[ind]];
 		ind++;
+		if(ind>n)
+			break;
+		cur_w+=weights[d_order[ind]];
 	}
-	value_ub+=values[d_order[ind]];
+
+	if(ind<n)
+		value_ub+=values[d_order[ind]];
 
 	unsigned long long table_size=(n+1)*(value_ub+1)*sizeof(int);
 	if(table_size>MAX_TABLE_SIZE){

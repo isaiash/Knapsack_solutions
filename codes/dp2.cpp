@@ -87,7 +87,7 @@ int main(int argc, char *argv[]){
 		return 1;
 	}
 
-	vector<vector<int >> dp_table(n+1,vector<int>(value_ub+1,weight_ub+1));
+	vector<vector<int > > dp_table(n+1,vector<int>(value_ub+1,weight_ub+1));
 
 	//calcular solucion cada 1s y ver mejora cada 1 s? medio s?
 	int l, r, m, max_val, rem_val, col;

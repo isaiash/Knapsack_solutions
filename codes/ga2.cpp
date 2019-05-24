@@ -89,7 +89,7 @@ void quicksorti(unsigned int first,unsigned int last, std::vector<int> &popf,std
 }
 
 int main(int argc, char *argv[]){
-	int n, cap, id;
+	int n, id;
 	if(argc != 2){
         std::cerr<<"Usage: "<<argv[0]<<" 'instace file name'"<<std::endl;
         return 0;
@@ -98,9 +98,8 @@ int main(int argc, char *argv[]){
 
     infile>>id;
     infile>>n;
-    infile>>cap;
+    infile>>b;
 
-    std::cout << id << " "<< n <<" "<< cap << std::endl;
     std::vector<int> c(n+1,0); //value
     std::vector<int> a(n+1,0); //weight
     std::vector<double> r(n+1,0.0);//density = value/weight =c/a
@@ -120,22 +119,6 @@ int main(int argc, char *argv[]){
         ri[i] = i;
     }
 
-    for(int i=0;i<a.size();i++){
-        std::cout << a[i] << " "; 
-    } std::cout << std::endl;
-
-    for(int i=0;i<c.size();i++){
-        std::cout << c[i] << " "; 
-    } std::cout << std::endl;
-
-    for(int i=0;i<ri.size();i++){
-        std::cout << ri[i] << " "; 
-    } std::cout << std::endl;
-
-    for(int i=0;i<r.size();i++){
-        std::cout << r[i] << " "; 
-    } std::cout << std::endl;
-
     std::vector< std::vector<int> > pop(m+1, std::vector<int> (n+1,0));
     std::vector< std::vector<int> > pop2(m+1, std::vector<int> (n+1,0));
     std::vector<int> popf(m+1,0);
@@ -144,11 +127,9 @@ int main(int argc, char *argv[]){
     std::vector<double> rf(n+1,0);
 
     clock_t start = clock();
-    std::cout << " paso 1 " << std::endl; 
 	quicksortf(1,n,r,ri);
     
 	srand( (unsigned)time( NULL ) );
-    std::cout << " paso 2 " << std::endl;
 	for(k=1;k<=m;k++){
 		for(i=k;i<=n;i++)
 			if (pop[k][0] + a[ri[i]] <= b){
@@ -177,17 +158,9 @@ int main(int argc, char *argv[]){
 iterasyon:
 	for(i=1;i<=m;i++)
 		popfi[i]=i;
-    for(int pec= 0; pec < popfi.size();pec++)
-        std::cout << popfi[pec] << " ";
 
 	quicksorti(1,m, popf, popfi,r);
-    std::cout << " paso 4 " << std::endl;
-    for(int pec= 0; pec < popf.size();pec++)
-        std::cout << popf[pec] << " ";
-    std::cout<< std::endl;
-    for(int pec= 0; pec < popfi.size();pec++)
-        std::cout << popfi[pec] << " ";
-    std::cout<< std::endl;
+
 	for(k=1;k<=m/2;k++){
 		for(j=0;j<=n;j++)
 			pop2[k][j] = pop[popfi[k]][j];
@@ -213,7 +186,6 @@ yenie2:
 			e2++;
 		if (e1==e2)
 			goto yenie2;
-        std::cout << " paso 5 " << std::endl; 
 		E = popf[e1]+popf[e2];
 		O = 100*popf[e1]/E;
 		pop2[k][0]=0;
@@ -261,7 +233,6 @@ yenie2:
 			}
 			j++;
 		}
-        std::cout << " paso 7 " << std::endl; 
 		for(i=1; i<=n && pop[k][0]<=b; i++)
 			if (pop[k][ri[i]]==0){
 				pop[k][ri[i]]=1;

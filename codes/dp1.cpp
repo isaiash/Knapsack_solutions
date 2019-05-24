@@ -8,7 +8,7 @@
 
 #define MAX_TABLE_SIZE 8000000000
 #define MAXN 2000
-#define SAMPLE 0.1
+#define SAMPLE 0.0001
 
 using namespace std;
 
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]){
 	start=clock();
 	last=clock();
 
-	int max_val, rem_val, col;
+	int max_val, rem_val, col, best_val=0;
 	for(int i=1; i<=n; i++){
 		for(int j=0; j<=cap; j++){
 			if(j>=weights[i-1]){
@@ -91,7 +91,10 @@ int main(int argc, char *argv[]){
 
 			//display solution and time
 			duration=(interm-start)/(double) CLOCKS_PER_SEC;
-			cout<<id<<" "<<max_val<<" "<<duration<<endl;
+			if (max_val > best_val){
+				cout<<id<<" "<<max_val<<" "<<duration<<endl;
+				best_val=max_val;
+			}
 			last=interm;
 		}
 	}

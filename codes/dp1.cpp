@@ -31,7 +31,7 @@ int main(int argc, char *argv[]){
 
 	int it_weight, it_value;
 
-	unsigned long long table_size=2*(cap+1)*sizeof(int);
+	unsigned long long table_size=(n+1)*(cap+1)*sizeof(int);
 	
 	//table too big for memory
 	if(table_size>MAX_TABLE_SIZE){
@@ -50,7 +50,7 @@ int main(int argc, char *argv[]){
 	}
 
 
-	vector<vector<int >> dp_table(2,vector<int>(cap+1,0));
+	vector<vector<int >> dp_table(n+1,vector<int>(cap+1,0));
 
 	clock_t start, last, interm, finish;
 	double duration;
@@ -58,26 +58,21 @@ int main(int argc, char *argv[]){
 	start=clock();
 	last=clock();
 
-	int max_val, rem_val, col, index, index_b;
+	int max_val, rem_val, col;
 	for(int i=1; i<=n; i++){
-	index = i%2;
-	if(index)
-		index_b = 0;
-	else
-		index_b = 1;
 		for(int j=0; j<=cap; j++){
 			if(j>=weights[i-1]){
-				dp_table[index][j]=max(dp_table[index_b][j],dp_table[index_b][j-weights[i-1]]+values[i-1]);
+				dp_table[i][j]=max(dp_table[i-1][j],dp_table[i-1][j-weights[i-1]]+values[i-1]);
 			}
 			else
-				dp_table[index][j]=dp_table[index_b][j];
+				dp_table[i][j]=dp_table[i-1][j];
 		}
 		interm=clock();
 		duration=(interm-last)/(double) CLOCKS_PER_SEC;
 
 		//display sol improvement every "SAMPLE" time
 		if(duration>=SAMPLE){
-			max_val=dp_table[index][cap];
+			max_val=dp_table[i][cap];
 
 			/*
 			//solution config
@@ -101,7 +96,7 @@ int main(int argc, char *argv[]){
 		}
 	}
 
-	max_val=dp_table[n%2][cap];
+	max_val=dp_table[n][cap];
 
 	/*
 	//solution config

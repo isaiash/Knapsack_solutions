@@ -81,29 +81,24 @@ int main(int argc, char *argv[]){
 	if(ind<n)
 		value_ub+=values[d_order[ind]];
 
-	unsigned long long table_size=2*(value_ub+1)*sizeof(int);
+	unsigned long long table_size=(n+1)*(value_ub+1)*sizeof(int);
 	if(table_size>MAX_TABLE_SIZE){
 		cout<<id<<" "<<-1<<" "<<-1<<endl;
 		return 1;
 	}
 
-	vector<vector<int >> dp_table(2,vector<int>(value_ub+1,weight_ub+1));
+	vector<vector<int >> dp_table(n+1,vector<int>(value_ub+1,weight_ub+1));
 
 	//calcular solucion cada 1s y ver mejora cada 1 s? medio s?
-	int l, r, m, max_val, rem_val, col, index, index_b;
+	int l, r, m, max_val, rem_val, col;
 	for(int i=1; i<=n; i++){
-		index = i%2;
-		if (index)
-			index_b=0;
-		else
-			index_b=1;
 		for(int j=0; j<=value_ub; j++){
 			if(values[i-1]>=j)
-				dp_table[index][j]=min(dp_table[index_b][j],weights[i-1]);
+				dp_table[i][j]=min(dp_table[i-1][j],weights[i-1]);
 			else if(values[i-1]<j)
-				dp_table[index][j]=min(dp_table[index_b][j],dp_table[index_b][j-values[i-1]]+weights[i-1]);
+				dp_table[i][j]=min(dp_table[i-1][j],dp_table[i-1][j-values[i-1]]+weights[i-1]);
 			else
-				dp_table[index][j]=dp_table[index_b][j];
+				dp_table[i][j]=dp_table[i-1][j];
 		}
 		interm=clock();
 		duration = ( interm - last) / (double) CLOCKS_PER_SEC;
@@ -112,9 +107,9 @@ int main(int argc, char *argv[]){
 			r=value_ub;
 			while(l<r){
 				m=l+(l-r+1)/2;
-				if(dp_table[index][m]<=cap)
+				if(dp_table[i][m]<=cap)
 					l=m;
-				else if(dp_table[index][m]>cap)
+				else if(dp_table[i][m]>cap)
 					r=m-1;
 			}
 
@@ -140,15 +135,14 @@ int main(int argc, char *argv[]){
 		}
 	}
 
-	int final_index = n%2;
 
 	l=0;
 	r=value_ub;
 	while(l<r){
 		m=l+(r-l+1)/2;
-		if(dp_table[final_index][m]<=cap)
+		if(dp_table[n][m]<=cap)
 			l=m;
-		else if(dp_table[final_index][m]>cap)
+		else if(dp_table[n][m]>cap)
 			r=m-1;
 	}
 

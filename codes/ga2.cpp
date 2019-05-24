@@ -28,7 +28,6 @@ unsigned int pivotlistf(unsigned int first,unsigned int last, std::vector<double
     tempw=ri[pivotpoint];
     ri[pivotpoint]=ri[index];
     ri[index]=tempw;
-
    }
    tempr=r[first];
    r[first]=r[pivotpoint];
@@ -96,9 +95,9 @@ int main(int argc, char *argv[]){
     }
     std::ifstream infile(argv[1]);
 
-    infile>>id;
-    infile>>n;
-    infile>>b;
+    infile>>id; //id of file - instance
+    infile>>n; //number of items
+    infile>>b; //capacity
 
     std::vector<int> c(n+1,0); //value
     std::vector<int> a(n+1,0); //weight
@@ -110,7 +109,9 @@ int main(int argc, char *argv[]){
             infile>>it_weight;
             a[i] = it_weight;
     }
+    
     unsigned int m = n;
+
     for(int i=1; i<=n; i++){
         infile >> it_value;
         it_density=it_value/(double) a[i];
@@ -213,11 +214,11 @@ yenie2:
 		popf[k]=pop2f[k];
 		for(j=0; j<=n; j++)
 			pop[k][j]=pop2[k][j];
-
 		if (popf[k]>maxO){
 			maxO=popf[k];
 			maxb=pop[popfi[k]][0];
-			printf("it : %d  b : %d  maxO : %d\n",it,maxb,maxO);
+			//printf("it : %d  b : %d  maxO : %d\n",it,maxb,maxO);
+            printf("%d   %d  %f\n", id, maxO, (float) (clock() - start) / CLOCKS_PER_SEC);
 		}
 	}
 
@@ -249,5 +250,5 @@ yenie2:
 	}
 	it++;
 	if (it < maxit) goto iterasyon;
-	printf("\nTime : %f\n\n", (float) (clock() - start) / CLOCKS_PER_SEC);
+	//printf("\nTime : %f\n\n", (float) (clock() - start) / CLOCKS_PER_SEC);
 }

@@ -6,9 +6,10 @@
 #include <fstream>
 #include <vector>
 
-#define maxit 30
+#define maxit 50
+#define mintimetoprint 0.0001
 unsigned int b,i,j,k,it=1,e1,e2,E,maxb,maxO=0;
-double O;
+double O,lastprint=0.0;
 
 unsigned int pivotlistf(unsigned int first,unsigned int last, std::vector<double> &r, std::vector<int> &ri){
 
@@ -218,7 +219,10 @@ yenie2:
 			maxO=popf[k];
 			maxb=pop[popfi[k]][0];
 			//printf("it : %d  b : %d  maxO : %d\n",it,maxb,maxO);
-            printf("%d   %d  %f\n", id, maxO, (float) (clock() - start) / CLOCKS_PER_SEC);
+            if((float) (clock() - lastprint) / CLOCKS_PER_SEC > mintimetoprint){
+                printf("%d   %d  %f\n", id, maxO, (float) (clock() - start) / CLOCKS_PER_SEC);
+                lastprint = clock();
+            }
 		}
 	}
 

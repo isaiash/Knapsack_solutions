@@ -3,13 +3,15 @@
 #include<stdlib.h>
 #include<time.h>
 #include<iostream>
+#include <fstream>
+#include <vector>
 
-#define n 10000		// number of items
+//#define n 10000		// number of items
 #define p 25		// density of knapsack problem
 #define m n
 #define maxit 30
 
-FILE *f;
+//FILE *f;
 unsigned int b,i,j,k,it=1,e1,e2,E,maxb,maxO=0;
 unsigned int a[n+1]={0},c[n+1]={0},ri[n+1]={0},pop[m+1][n+1]={0},popf[m+1]={0},popfi[m+1]={0},pop2[m+1][n+1]={0},pop2f[m+1]={0};
 double r[n+1]={0},rf[m+1]={0},O;
@@ -94,13 +96,40 @@ void quicksorti(unsigned int first,unsigned int last){
  }
 }
 
-int main(){
+int main(int argc, char *argv[]){
+	int n, cap, id;
+    std::vector<int> weights;
+    std::vector<int> values;
+    std::vector<double> densities;
+	if(argc!=2){
+        std::cerr<<"Usage: "<<argv[0]<<" 'instace file name'"<<std::endl;
+        return 0;
+    }
+    std::ifstream infile(argv[1]);
+    infile>>id;
+    infile>>n;
+    infile>>cap;
+    int it_weight, it_value;
+    double it_density;
+    for(int i=0; i<n; i++){
+            infile>>it_weight;
+            weights.push_back(it_weight);
+    }
+    std::vector<int> d_order;
+    for(int i=0; i<n; i++){
+        infile>>it_value;
+        it_density=it_value/(double)weights[i];
+        values.push_back(it_value);
+        densities.push_back(it_density);
+        d_order.push_back(i);
+    }
+/*
 	//itoa(n,ns,10);
 	//itoa(p,ps,10);
-	std::string sns = std::to_string(n);
-	strcpy(ns, sns.c_str());
-	std::string sps = std::to_string(p);
-	strcpy(ps, sps.c_str());
+    std::string sns = std::to_string(n);
+    strcpy(ns, sns.c_str());
+    std::string sps = std::to_string(p);
+    strcpy(ps, sps.c_str());
 	strcpy(fins,"");
 	strncat(fins,ns,strlen(ns)+1);
 	strncat(fins,"_",strlen(ns)+2);	
@@ -116,8 +145,8 @@ int main(){
 		fscanf(f,"%d %d",&a[i],&c[i]);
 	fscanf(f,"%d",&b);
 	fclose(f);
-	clock_t start, end;
-	start = clock();
+*/
+	clock_t start = clock();
 
 	for(i=1;i<=n;i++){
 		r[i]=1.0*c[i]/a[i];

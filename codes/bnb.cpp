@@ -12,6 +12,8 @@
 #include <algorithm>
 #include<ctime>
 
+#define SAMPLE 0.0001
+
 using namespace std;
 
 vector <int> optimalSolution; // initialize a global vector used to keep track of optimal solutions
@@ -172,7 +174,11 @@ void knapsack3(int n, int p[], int w[], int W, int maxprofit, clock_t init_start
     int optSize = 0; //initialize current optimal size 0
     int numNodes = 1; //initalize current number of nodes visited to 1, to account for root node
     int numLeaves = 0; //initalize current number of leaf nodes visited to 0
-    int count = 0;
+
+    clock_t last, interm;
+    double duration;
+
+    last=clock();
     
     //initialize priority queue of nodes Q
     priority_queue<node>Q;
@@ -204,9 +210,11 @@ void knapsack3(int n, int p[], int w[], int W, int maxprofit, clock_t init_start
             u.k.at(u.level-1) = 1; //designate part of personal solution
             if(u.weight <= W && u.profit > maxprofit) {
                 maxprofit = u.profit;
-                if(count > 10){
-                    cout << id << " " << maxprofit << " " << ( clock() - init_start ) / (double) CLOCKS_PER_SEC << endl;
-                    count = 0;
+                interm=clock();
+                duration = ( interm - last) / (double) CLOCKS_PER_SEC;
+                if(duration>=SAMPLE){
+                    cout << id << " " << maxprofit << " " << ( interm - init_start ) / (double) CLOCKS_PER_SEC << endl;
+                    last = interm;
                 }
                 optimalSolution = u.k; //add to global optimal solution
             }
@@ -234,7 +242,6 @@ void knapsack3(int n, int p[], int w[], int W, int maxprofit, clock_t init_start
         }//queue is empty
         else
             numLeaves++; //increment number of leaf nodes visited
-        count++;
     }
     
     //calculate size of our optimal solution from optimalSolution global variable

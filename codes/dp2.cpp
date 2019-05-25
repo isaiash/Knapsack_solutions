@@ -106,7 +106,7 @@ int main(int argc, char *argv[]){
 			l=0;
 			r=value_ub;
 			while(l<r){
-				m=l+(l-r+1)/2;
+				m=l+(r-l+1)/2;
 				if(dp_table[i][m]<=cap)
 					l=m;
 				else if(dp_table[i][m]>cap)
